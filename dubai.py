@@ -2,151 +2,233 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import yfinance as yf
+import numpy as np
 
-# ============================================================
-# GLOBAL RESOURCE DECISION FRAMEWORK – PRO LEVEL
-# Author: Data Analyst Hermann RAMOS
-# ============================================================
-
-# 1. Page Configuration
+# ======================================================
+# 1. PAGE CONFIG
+# ======================================================
 st.set_page_config(
-    page_title="Global Resource Decision Framework | RAMOS",
-    page_icon="⛏️",
-    layout="wide"
+    page_title="RAMOS | Enterprise Decision Intelligence",
+    page_icon="🧠",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# 2. Global Dark Theme (Executive / Consulting grade)
+# ======================================================
+# 2. ENTERPRISE THEME (BOARD-LEVEL)
+# ======================================================
 st.markdown("""
 <style>
 .stApp { background-color: #050A30; color: white; }
-.block-container { padding-top: 2rem; }
-.metric-label { font-size: 14px !important; color: #A0AEC0; }
-.metric-value { font-size: 28px !important; font-weight: 700; }
+h1, h2, h3 { color: #E5E7EB; }
+small { color: #9CA3AF; }
+.card {
+    background-color: #0B133F;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #1E2A44;
+}
 .footer {
     position: fixed;
-    left: 0;
     bottom: 0;
     width: 100%;
     background-color: #050A30;
-    color: #8892B0;
-    text-align: center;
-    padding: 8px;
-    font-size: 13px;
     border-top: 1px solid #1E2A44;
-    z-index: 100;
+    text-align: center;
+    padding: 10px;
+    font-size: 13px;
+    color: #9CA3AF;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# 3. Sidebar – Branding & Controls
+# ======================================================
+# 3. SIDEBAR – EXECUTIVE CONTROLS
+# ======================================================
 with st.sidebar:
-    st.markdown("## 📊 Data Analyst RAMOS")
-    st.image("https://cdn-icons-png.flaticon.com/512/1055/1055644.png", width=70)
-    st.caption("Decision Intelligence | Mining, Trading & ESG")
+    st.markdown("## 🧠 RAMOS Intelligence")
+    st.caption("Enterprise Decision Intelligence")
+    st.caption("Mining • Trading • ESG • Strategy")
     st.divider()
 
-    comparison_mode = st.checkbox("Enable Side-by-Side Comparison", value=True)
-    risk_tolerance = st.selectbox("Risk Tolerance", ["Low", "Medium", "High"], index=1)
-    investment_horizon = st.selectbox("Investment Horizon", ["Short-term", "Mid-term", "Long-term"], index=1)
+    region = st.selectbox("🌍 Region", ["Dubai", "Australia"])
+    horizon = st.selectbox("⏳ Investment Horizon", ["Short-term", "Mid-term", "Long-term"])
+    risk = st.selectbox("⚠️ Risk Appetite", ["Low", "Medium", "High"])
 
-# 4. Live Gold Price (Market Signal)
+# ======================================================
+# 4. LIVE GOLD PRICE
+# ======================================================
 @st.cache_data(ttl=3600)
-def get_gold_price():
+def gold_price():
     try:
         gold = yf.Ticker("GC=F")
         return round(gold.history(period="1d")["Close"].iloc[-1], 2)
     except:
         return 2050.00
 
-current_gold_price = get_gold_price()
+price = gold_price()
 
-# 5. Core Dataset (Illustrative – Decision Framework)
-data = {
+# ======================================================
+# 5. ENTERPRISE DATA MODEL
+# ======================================================
+df = pd.DataFrame({
     "Region": ["Dubai", "Australia"],
-    "Gold Reserves (Tons)": [5, 11000],
-    "Projected ROI (%)": [25, 18],
-    "Production Cost ($/oz)": [500, 1200],
-    "Risk Level": ["Low", "Medium"],
-    "Strategic Role": ["Trading Hub", "Long-Term Reserve"]
-}
+    "Reserves": [5, 11000],
+    "ROI": [25, 18],
+    "Cost": [500, 1200],
+    "Risk_Profile": ["Low–Medium", "Low"],
+    "Strategic_Role": ["Trading Hub", "Strategic Reserve"],
+    "Lat": [25.2048, -25.2744],
+    "Lon": [55.2708, 133.7751]
+})
 
-df = pd.DataFrame(data)
+row = df[df["Region"] == region].iloc[0]
 
-# 6. Header – Executive Framing
-st.title("⛏️ Global Resource Decision Framework")
+# ======================================================
+# 6. HEADER
+# ======================================================
+st.title("⚒️ Enterprise Resource Decision Intelligence")
 st.markdown(
-    f"**Live Gold Price:** ${current_gold_price}/oz &nbsp;|&nbsp; "
-    "Framework designed for **Investors, Traders & Strategic Advisors**"
+    f"""
+    **Live Gold Price:** `${price} / oz`  
+    _Board-level analytics designed by **Hermann RAMOS**_
+    """
 )
 
-# 7. Decision Recommendation Engine (Rule-based)
-if investment_horizon == "Short-term":
-    recommendation = "🇦🇪 Dubai – Optimized for liquidity, arbitrage & fast ROI"
-elif investment_horizon == "Long-term":
-    recommendation = "🇦🇺 Australia – Strategic reserves & asset preservation"
-else:
-    recommendation = "⚖️ Balanced allocation across Dubai & Australia"
+st.divider()
 
-st.success(f"### ✅ Strategic Recommendation: {recommendation}")
+# ======================================================
+# 7. EXECUTIVE KPI CARDS
+# ======================================================
+k1, k2, k3, k4 = st.columns(4)
+
+k1.markdown(f"""
+<div class="card">
+<h3>🪙 Reserves</h3>
+<b>{row.Reserves:,} Tons</b><br>
+<small>Physical Asset Base</small>
+</div>
+""", unsafe_allow_html=True)
+
+k2.markdown(f"""
+<div class="card">
+<h3>📈 ROI</h3>
+<b>{row.ROI}%</b><br>
+<small>Projected Return</small>
+</div>
+""", unsafe_allow_html=True)
+
+k3.markdown(f"""
+<div class="card">
+<h3>🏭 Cost</h3>
+<b>${row.Cost} / oz</b><br>
+<small>Production Economics</small>
+</div>
+""", unsafe_allow_html=True)
+
+k4.markdown(f"""
+<div class="card">
+<h3>⚠️ Risk</h3>
+<b>{row.Risk_Profile}</b><br>
+<small>Operational & Market</small>
+</div>
+""", unsafe_allow_html=True)
 
 st.divider()
 
-# 8. Side-by-Side Regional Analysis
-if comparison_mode:
-    col1, col2 = st.columns(2)
+# ======================================================
+# 8. DECISION ENGINE (EXPLAINABLE)
+# ======================================================
+def decision_engine(region, horizon, risk):
+    if region == "Dubai" and horizon == "Short-term":
+        return "STRONG ALLOCATION", (
+            "Dubai offers liquidity, low production cost, "
+            "and fast capital rotation. Optimized for trading desks."
+        )
+    if region == "Australia" and horizon == "Long-term":
+        return "STRATEGIC HOLD", (
+            "Australia provides supply security, reserve depth, "
+            "and long-term asset preservation."
+        )
+    if risk == "Low":
+        return "CONSERVATIVE STRATEGY", (
+            "Preference for stable reserves and predictable output."
+        )
+    return "BALANCED STRATEGY", (
+        "Diversified exposure recommended to balance yield and stability."
+    )
 
-    with col1:
-        st.subheader("🇦🇪 Dubai – Trading Efficiency Hub")
-        st.metric("Gold Reserves", "5 Tons")
-        st.metric("Projected ROI", "25%", delta="High Efficiency")
-        st.metric("Production Cost", "$500 / oz")
-        st.caption("Source: DMCC | Confidence: Medium")
-        st.map(pd.DataFrame({'lat': [25.2048], 'lon': [55.2708]}), zoom=9)
-        st.info("Low reserves, high velocity → ideal for trading & capital rotation")
+decision, rationale = decision_engine(region, horizon, risk)
 
-    with col2:
-        st.subheader("🇦🇺 Australia – Strategic Reserve Base")
-        st.metric("Gold Reserves", "11,000 Tons")
-        st.metric("Projected ROI", "18%")
-        st.metric("Production Cost", "$1,200 / oz")
-        st.caption("Source: USGS | Confidence: High")
-        st.map(pd.DataFrame({'lat': [-25.2744], 'lon': [133.7751]}), zoom=3)
-        st.info("Massive reserves → long-term value & supply security")
+st.success(f"### 🧭 Board Recommendation: **{decision}**")
+st.markdown(f"📘 **Rationale:** {rationale}")
+
+st.info(f"🎯 **Strategic Role:** {row.Strategic_Role}")
 
 st.divider()
 
-# 9. Strategic Comparison Chart (Log Scale)
-st.subheader("📊 Strategic KPI Comparison")
+# ======================================================
+# 9. GEOGRAPHIC CONTEXT
+# ======================================================
+st.subheader("🌍 Geographic Footprint")
+st.map(
+    pd.DataFrame({"lat": [row.Lat], "lon": [row.Lon]}),
+    zoom=9 if region == "Dubai" else 3
+)
+
+# ======================================================
+# 10. MARKET SIGNAL – GOLD TREND
+# ======================================================
+st.subheader("📈 Market Signal – Gold Price (30 Days)")
+
+dates = pd.date_range(end=pd.Timestamp.today(), periods=30)
+trend = price + np.random.normal(0, 12, len(dates))
+trend_df = pd.DataFrame({"Date": dates, "Price": trend})
+
+fig_trend = px.line(
+    trend_df,
+    x="Date",
+    y="Price",
+    template="plotly_dark",
+    labels={"Price": "USD / oz"}
+)
+
+st.plotly_chart(fig_trend, width="stretch")
+
+# ======================================================
+# 11. STRATEGIC COMPARISON
+# ======================================================
+st.subheader("📊 Strategic Comparison Overview")
 
 fig = px.bar(
     df,
     x="Region",
-    y=["Projected ROI (%)", "Gold Reserves (Tons)", "Production Cost ($/oz)"],
+    y=["ROI", "Reserves"],
     barmode="group",
     log_y=True,
     template="plotly_dark",
-    labels={"value": "Metric Value", "variable": "KPI"},
-    color_discrete_map={
-        "Projected ROI (%)": "#00E5FF",
-        "Gold Reserves (Tons)": "#FFD700",
-        "Production Cost ($/oz)": "#FF6B6B"
-    }
+    color_discrete_map={"ROI": "#00E5FF", "Reserves": "#FFD700"}
 )
 
-fig.update_layout(legend_title_text="Key Performance Indicators")
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 
-# 10. Export
-st.divider()
+# ======================================================
+# 12. EXPORT
+# ======================================================
 csv = df.to_csv(index=False).encode("utf-8")
-st.download_button("📥 Download Executive Dataset (CSV)", csv, "global_resource_decision_framework.csv", "text/csv")
-
-# 11. Footer
-st.markdown(
-    """
-    <div class="footer">
-        Developed by <b>Data Analyst Hermann RAMOS</b> | © 2026 | Decision Intelligence for Mining, Trading & ESG
-    </div>
-    """,
-    unsafe_allow_html=True
+st.download_button(
+    "📥 Download Enterprise Dataset",
+    csv,
+    "enterprise_decision_dataset.csv",
+    "text/csv"
 )
+
+# ======================================================
+# 13. FOOTER
+# ======================================================
+st.markdown("""
+<div class="footer">
+<b>Hermann RAMOS</b> | Enterprise Decision Intelligence Architect  
+© 2026 – Mining • Trading • ESG • Strategy
+</div>
+""", unsafe_allow_html=True)
